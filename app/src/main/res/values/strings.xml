@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">App Name</string>
+    <string name="timepicker_title">Select Time</string>
+    <string name="datepicker_title">Select Date</string>
+
+    <string name="facebook_app_id">900702433461576</string>
+    <string name="fb_login_protocol_scheme">fb900702433461576</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="hair">Hair</string>
+    <string name="face">My Spa</string>
+    <string name="massage">Nail</string>
+    <string name="nail">Aromaterapy</string>
+    <string name="welcome">Enjoy Our Services</string>
+    <string name="description_face">WELCOME TO SPA</string>
+    <string name="description_massage">PlACE NAIL</string>
+    <string name="description_nail">PLACE AROMATERAPHY</string>
+    <string name="description_hair">PLACE HAIR</string>
+
+    <string name="empty"></string>
+    <string name="create_new_account">CREATE NEW\nACCOUNT</string>
+</resources>
