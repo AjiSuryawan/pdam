@@ -2,7 +2,6 @@ package com.tangria.spa.bookingku.Network;
 
 import com.tangria.spa.bookingku.Activity.Notification.NotificationModel;
 import com.tangria.spa.bookingku.Fragment.Home.data_item_spa;
-import com.tangria.spa.bookingku.Fragment.PromonInfo.ResonWaktuFalse;
 import com.tangria.spa.bookingku.Model.BookingResponse;
 import com.tangria.spa.bookingku.Model.Profile;
 import retrofit2.Call;
@@ -22,8 +21,8 @@ public interface BookingService {
     @GET("api/product/package_treatment")
     Call<List<data_item_spa>> getPackageTreatment();
 
-    @GET("api/busy")
-    Call<ResonWaktuFalse> dataWaktu();
+//    @GET("api/busy")
+//    Call<ResonWaktuFalse> dataWaktu();
 
     @POST("api/user/login")
     @FormUrlEncoded
