@@ -7,35 +7,25 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
-
 import com.tangria.spa.bookingku.BuildConfig;
 import com.tangria.spa.bookingku.R;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
+import javax.net.ssl.HttpsURLConnection;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -44,51 +34,34 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.net.ssl.HttpsURLConnection;
+
+import io.realm.Realm;
+import io.realm.RealmObject;
+import io.realm.RealmResults;
+
 
 public class FormRecord extends AppCompatActivity {
     private String cameraFilePath;
-
     Button GetImageFromGalleryButton, UploadImageOnServerButton;
-
     ImageView ShowSelectedImage;
-
     EditText imageName;
-
     Bitmap FixBitmap;
-
     String ImageTag = "image_tag";
-
     String ImageName = "image_data";
-
     ProgressDialog progressDialog;
-
     ByteArrayOutputStream byteArrayOutputStream;
-
     byte[] byteArray;
-
     String ConvertImage;
-
     String GetImageNameFromEditText;
-
     HttpURLConnection httpURLConnection;
-
     URL url;
-
     OutputStream outputStream;
-
     BufferedWriter bufferedWriter;
-
     int RC;
-
     BufferedReader bufferedReader;
-
     StringBuilder stringBuilder;
-
     boolean check = true;
-
     private int GALLERY = 1, CAMERA = 2;
-
 
 
     @Override
@@ -96,32 +69,20 @@ public class FormRecord extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_form_record);
         GetImageFromGalleryButton = (Button) findViewById(R.id.buttonSelect);
-
         UploadImageOnServerButton = (Button) findViewById(R.id.buttonUpload);
-
         ShowSelectedImage = (ImageView) findViewById(R.id.imageView);
-
         imageName = (EditText) findViewById(R.id.imageName);
-
         byteArrayOutputStream = new ByteArrayOutputStream();
-
         GetImageFromGalleryButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 showPictureDialog();
-
-
             }
         });
-
-
         UploadImageOnServerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 GetImageNameFromEditText = "makan";
-
                 new AlertDialog.Builder(FormRecord.this)
                         .setTitle("Save data")
                         .setMessage("Apakah anda yakin ingin save data ?")
@@ -129,6 +90,7 @@ public class FormRecord extends AppCompatActivity {
                         .setPositiveButton("Ya", new DialogInterface.OnClickListener() {
 
                             public void onClick(DialogInterface arg0, int arg1) {
+                                //
                                 finish();
                             }
                         }).create().show();
@@ -136,7 +98,7 @@ public class FormRecord extends AppCompatActivity {
             }
         });
 
-        if (ContextCompat.checkSelfPermission(FormRecord.this, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(FormRecord.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ) {
+        if (ContextCompat.checkSelfPermission(FormRecord.this, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(FormRecord.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 requestPermissions(new String[]{android.Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE},
                         5);
@@ -179,12 +141,12 @@ public class FormRecord extends AppCompatActivity {
         Intent intent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
         try {
             intent.putExtra(MediaStore.EXTRA_OUTPUT, FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".provider", createImageFile()));
-            Log.e("", "putExtra: " );
+            Log.e("", "putExtra: ");
         } catch (IOException e) {
             e.printStackTrace();
-            Log.e("", "ioexception: " + e.getLocalizedMessage() );
+            Log.e("", "ioexception: " + e.getLocalizedMessage());
         }
-        Log.e("", "takePhotoFromCamera: " );
+        Log.e("", "takePhotoFromCamera: ");
         startActivityForResult(intent, CAMERA);
     }
 
@@ -213,7 +175,7 @@ public class FormRecord extends AppCompatActivity {
 
         } else if (requestCode == CAMERA) {
 //            FixBitmap = (Bitmap) data.getExtras().get("data");
-            Log.e("", "onActivityResult: " + cameraFilePath );
+            Log.e("", "onActivityResult: " + cameraFilePath);
             ShowSelectedImage.setImageURI(Uri.parse(cameraFilePath));
             try {
                 FixBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), Uri.parse(cameraFilePath));
@@ -225,7 +187,6 @@ public class FormRecord extends AppCompatActivity {
             //Toast.makeText(ShadiRegistrationPart5.this, "Image Saved!", Toast.LENGTH_SHORT).show();
         }
     }
-
 
 
     @Override
@@ -246,54 +207,31 @@ public class FormRecord extends AppCompatActivity {
     public class ImageProcessClass {
 
         public String ImageHttpRequest(String requestURL, HashMap<String, String> PData) {
-
             StringBuilder stringBuilder = new StringBuilder();
-
             try {
                 url = new URL(requestURL);
-
                 httpURLConnection = (HttpURLConnection) url.openConnection();
-
                 httpURLConnection.setReadTimeout(20000);
-
                 httpURLConnection.setConnectTimeout(20000);
-
                 httpURLConnection.setRequestMethod("POST");
-
                 httpURLConnection.setDoInput(true);
-
                 httpURLConnection.setDoOutput(true);
-
                 outputStream = httpURLConnection.getOutputStream();
-
                 bufferedWriter = new BufferedWriter(
-
                         new OutputStreamWriter(outputStream, "UTF-8"));
-
                 bufferedWriter.write(bufferedWriterDataFN(PData));
-
                 bufferedWriter.flush();
-
                 bufferedWriter.close();
-
                 outputStream.close();
-
                 RC = httpURLConnection.getResponseCode();
-
                 if (RC == HttpsURLConnection.HTTP_OK) {
-
                     bufferedReader = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream()));
-
                     stringBuilder = new StringBuilder();
-
                     String RC2;
-
                     while ((RC2 = bufferedReader.readLine()) != null) {
-
                         stringBuilder.append(RC2);
                     }
                 }
-
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -301,22 +239,16 @@ public class FormRecord extends AppCompatActivity {
         }
 
         private String bufferedWriterDataFN(HashMap<String, String> HashMapParams) throws UnsupportedEncodingException {
-
             stringBuilder = new StringBuilder();
-
             for (Map.Entry<String, String> KEY : HashMapParams.entrySet()) {
                 if (check)
                     check = false;
                 else
                     stringBuilder.append("&");
-
                 stringBuilder.append(URLEncoder.encode(KEY.getKey(), "UTF-8"));
-
                 stringBuilder.append("=");
-
                 stringBuilder.append(URLEncoder.encode(KEY.getValue(), "UTF-8"));
             }
-
             return stringBuilder.toString();
         }
 
