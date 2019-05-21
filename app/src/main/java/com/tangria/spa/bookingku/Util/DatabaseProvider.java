@@ -24,9 +24,9 @@ public class DatabaseProvider {
         return instance;
     }
 
-    public void insertRecord(String meteran, String imagePath) {
+    public void insertRecord(String name, String meteran, String imagePath) {
         realm.executeTransactionAsync(realm -> {
-            FormRecordModel form = realm.createObject(FormRecordModel.class, UUID.randomUUID().toString());
+            FormRecordModel form = realm.createObject(FormRecordModel.class, name);
             form.setMeteran(meteran);
             form.setImagePath(imagePath);
 
@@ -39,12 +39,24 @@ public class DatabaseProvider {
         } );
     }
 
-    public FormRecordModel getRecordByMeteran(String meteran){
+    public FormRecordModel getRecordByName(String name){
         return realm.where(FormRecordModel.class)
-                .equalTo("meteran", meteran)
+                .equalTo("id", name)
                 .findFirst();
     }
 
+    public boolean isSubmitted(String name){
+        FormRecordModel result = realm.where(FormRecordModel.class)
+                .equalTo("id", name)
+                .findFirst();
+        if(result != null){
+            realm.close();
+            return true;
+        } else {
+            realm.close();
+            return false;
+        }
+    }
     public void close() {
         realm.close();
     }

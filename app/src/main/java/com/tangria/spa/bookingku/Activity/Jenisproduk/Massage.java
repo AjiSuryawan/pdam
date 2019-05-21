@@ -54,8 +54,6 @@ public class Massage extends AppCompatActivity {
     }
 
 
-
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_notification) {
@@ -105,6 +103,12 @@ public class Massage extends AppCompatActivity {
         });
 
         load_data();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        adapter.notifyDataSetChanged();
     }
 
     private void load_data() {

@@ -10,6 +10,14 @@ public class FormRecordModel extends RealmObject {
     private String meteran;
     private String imagePath;
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public String getMeteran() {
         return meteran;
     }

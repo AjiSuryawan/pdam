@@ -4,7 +4,6 @@ import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -33,7 +32,7 @@ public class Search extends AppCompatActivity {
         etMeteran = findViewById(R.id.et_meteran);
         Button updateBtn=(Button)findViewById(R.id.updateBtn);
         updateBtn.setOnClickListener(v -> {
-            FormRecordModel formRecordModel = db.getRecordByMeteran(etMeteran.getText().toString());
+            FormRecordModel formRecordModel = db.getRecordByName(etMeteran.getText().toString());
             Log.e("", "onCreate: " + formRecordModel.getImagePath() );
             ivImage.setImageURI(Uri.parse(formRecordModel.getImagePath()));
 //                finish();

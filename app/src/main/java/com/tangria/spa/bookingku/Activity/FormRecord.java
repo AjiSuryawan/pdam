@@ -25,6 +25,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.tangria.spa.bookingku.BuildConfig;
+import com.tangria.spa.bookingku.Model.FormRecordModel;
 import com.tangria.spa.bookingku.R;
 import com.tangria.spa.bookingku.Util.DatabaseProvider;
 
@@ -72,8 +73,9 @@ public class FormRecord extends AppCompatActivity {
     private int GALLERY = 1, CAMERA = 2;
     private DatabaseProvider db;
     private String imagePath;
+    private String name;
 
-    public static String getPath(Context context, Uri uri) {
+    public String getPath(Context context, Uri uri) {
         String result = null;
         String[] proj = {MediaStore.Images.Media.DATA};
         Cursor cursor = context.getContentResolver().query(uri, proj, null, null, null);
@@ -94,13 +96,18 @@ public class FormRecord extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_form_record);
-
+        name = getIntent().getExtras().getString("name", "");
         db = DatabaseProvider.getInstance();
         GetImageFromGalleryButton = (Button) findViewById(R.id.buttonSelect);
         UploadImageOnServerButton = (Button) findViewById(R.id.buttonUpload);
         ShowSelectedImage = (ImageView) findViewById(R.id.imageView);
         imageName = (EditText) findViewById(R.id.imageName);
         byteArrayOutputStream = new ByteArrayOutputStream();
+        FormRecordModel formRecord = db.getRecordByName(name);
+        if(formRecord != null) {
+            imageName.setText(formRecord.getMeteran());
+            ShowSelectedImage.setImageURI(Uri.parse(formRecord.getImagePath()));
+        }
         GetImageFromGalleryButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -117,7 +124,7 @@ public class FormRecord extends AppCompatActivity {
                         .setNegativeButton("Tidak", null)
                         .setPositiveButton("Ya", (arg0, arg1) -> {
                             if (!imageName.getText().toString().isEmpty() && !imagePath.isEmpty()) {
-                                db.insertRecord(imageName.getText().toString(), imagePath);
+                                db.insertRecord(name, imageName.getText().toString(), imagePath);
                             }
                             finish();
                         }).create().show();
@@ -192,7 +199,7 @@ public class FormRecord extends AppCompatActivity {
             if (data != null) {
                 Uri contentURI = data.getData();
                 imagePath = getPath(this, contentURI);
-                Log.e("", "onActivityResult: " + imagePath );
+                Log.e("", "onActivityResult: " + imagePath);
                 try {
                     FixBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), contentURI);
                     // String path = saveImage(bitmap);

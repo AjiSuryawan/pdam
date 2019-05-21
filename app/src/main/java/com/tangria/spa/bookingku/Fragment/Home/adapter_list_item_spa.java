@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.tangria.spa.bookingku.Activity.FormRecord;
 import com.tangria.spa.bookingku.R;
+import com.tangria.spa.bookingku.Util.DatabaseProvider;
 
 import java.util.List;
 
@@ -34,6 +35,9 @@ public class adapter_list_item_spa extends RecyclerView.Adapter<adapter_list_ite
     @Override
     public void onBindViewHolder(final Holder holder, final int position) {
         final data_item_spa data_item = arrayList.get(position);
+        if(DatabaseProvider.getInstance().isSubmitted(data_item.getName())){
+            holder.imageview_item_spa.setVisibility(View.VISIBLE);
+        }
         holder.textview_item_spa.setText(data_item.getName());
         holder.textview_description_item.setText(data_item.getDescription());
         if(data_item.getPrice() != null)
@@ -59,6 +63,7 @@ public class adapter_list_item_spa extends RecyclerView.Adapter<adapter_list_ite
 ////                intent.putExtra("price",price.getHarga());
 ////                intent.putExtra("available",available);
                 Intent intent = new Intent(context, FormRecord.class);
+                intent.putExtra("name", data_item.getName());
                 //intent.putExtra("product", data_item);
 
                 holder.itemView.getContext().startActivity(intent);
@@ -80,7 +85,7 @@ public class adapter_list_item_spa extends RecyclerView.Adapter<adapter_list_ite
 
         public Holder(View itemView) {
             super(itemView);
-            imageview_item_spa = (ImageView) itemView.findViewById(R.id.imageview_item_spa);
+            imageview_item_spa = (ImageView) itemView.findViewById(R.id.textview_cost_item);
             cardku = (CardView) itemView.findViewById(R.id.cardku);
             textview_item_spa = (TextView) itemView.findViewById(R.id.textview_name_item);
             textview_description_item = (TextView)itemView.findViewById(R.id.textview_description_item);
