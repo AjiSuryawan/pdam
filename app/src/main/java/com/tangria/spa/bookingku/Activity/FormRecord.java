@@ -23,6 +23,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 import com.tangria.spa.bookingku.BuildConfig;
 import com.tangria.spa.bookingku.R;
+import com.tangria.spa.bookingku.Util.DatabaseProvider;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
@@ -62,12 +63,14 @@ public class FormRecord extends AppCompatActivity {
     StringBuilder stringBuilder;
     boolean check = true;
     private int GALLERY = 1, CAMERA = 2;
-
+    private DatabaseProvider db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_form_record);
+
+        db = DatabaseProvider.getInstance();
         GetImageFromGalleryButton = (Button) findViewById(R.id.buttonSelect);
         UploadImageOnServerButton = (Button) findViewById(R.id.buttonUpload);
         ShowSelectedImage = (ImageView) findViewById(R.id.imageView);
@@ -87,12 +90,11 @@ public class FormRecord extends AppCompatActivity {
                         .setTitle("Save data")
                         .setMessage("Apakah anda yakin ingin save data ?")
                         .setNegativeButton("Tidak", null)
-                        .setPositiveButton("Ya", new DialogInterface.OnClickListener() {
-
-                            public void onClick(DialogInterface arg0, int arg1) {
-                                //
-                                finish();
+                        .setPositiveButton("Ya", (arg0, arg1) -> {
+                            if(imageName.getText().toString().isEmpty()){
+                                db.insertRecord(imageName.getText().toString(), "imagepath...");
                             }
+                            finish();
                         }).create().show();
 
             }
@@ -148,6 +150,12 @@ public class FormRecord extends AppCompatActivity {
         }
         Log.e("", "takePhotoFromCamera: ");
         startActivityForResult(intent, CAMERA);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        db.close();
     }
 
     @Override
