@@ -28,7 +28,13 @@ public class DatabaseProvider {
             form.setMeteran(meteran);
             form.setImagePath(imagePath);
 
-        }, error -> Log.e("", "onError: " + error.getLocalizedMessage()));
+        }, () -> {
+            Log.e("", "onSuccess: ");
+            realm.close();
+        }, error -> {
+            Log.e("", "onError: " + error.getLocalizedMessage());
+            realm.close();
+        } );
     }
 
     public void close() {

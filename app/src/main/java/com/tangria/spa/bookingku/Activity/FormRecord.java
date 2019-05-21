@@ -2,9 +2,11 @@ package com.tangria.spa.bookingku.Activity;
 
 import android.Manifest;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
@@ -21,12 +23,20 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
+
 import com.tangria.spa.bookingku.BuildConfig;
 import com.tangria.spa.bookingku.R;
 import com.tangria.spa.bookingku.Util.DatabaseProvider;
 
-import javax.net.ssl.HttpsURLConnection;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -35,14 +45,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-
-import io.realm.Realm;
-import io.realm.RealmObject;
-import io.realm.RealmResults;
+import javax.net.ssl.HttpsURLConnection;
 
 
 public class FormRecord extends AppCompatActivity {
-    private String cameraFilePath;
     Button GetImageFromGalleryButton, UploadImageOnServerButton;
     ImageView ShowSelectedImage;
     EditText imageName;
@@ -62,8 +68,27 @@ public class FormRecord extends AppCompatActivity {
     BufferedReader bufferedReader;
     StringBuilder stringBuilder;
     boolean check = true;
+    private String cameraFilePath;
     private int GALLERY = 1, CAMERA = 2;
     private DatabaseProvider db;
+    private String imagePath;
+
+    public static String getPath(Context context, Uri uri) {
+        String result = null;
+        String[] proj = {MediaStore.Images.Media.DATA};
+        Cursor cursor = context.getContentResolver().query(uri, proj, null, null, null);
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                int column_index = cursor.getColumnIndexOrThrow(proj[0]);
+                result = cursor.getString(column_index);
+            }
+            cursor.close();
+        }
+        if (result == null) {
+            result = "Not found";
+        }
+        return result;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,7 +116,7 @@ public class FormRecord extends AppCompatActivity {
                         .setMessage("Apakah anda yakin ingin save data ?")
                         .setNegativeButton("Tidak", null)
                         .setPositiveButton("Ya", (arg0, arg1) -> {
-                            if(imageName.getText().toString().isEmpty()){
+                            if (!imageName.getText().toString().isEmpty() && !imagePath.isEmpty()) {
                                 db.insertRecord(imageName.getText().toString(), "imagepath...");
                             }
                             finish();
@@ -107,7 +132,6 @@ public class FormRecord extends AppCompatActivity {
             }
         }
     }
-
 
     private void showPictureDialog() {
         AlertDialog.Builder pictureDialog = new AlertDialog.Builder(this);
@@ -155,7 +179,6 @@ public class FormRecord extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        db.close();
     }
 
     @Override
@@ -168,6 +191,8 @@ public class FormRecord extends AppCompatActivity {
         if (requestCode == GALLERY) {
             if (data != null) {
                 Uri contentURI = data.getData();
+                imagePath = getPath(this, contentURI);
+                Log.e("", "onActivityResult: " + imagePath );
                 try {
                     FixBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), contentURI);
                     // String path = saveImage(bitmap);
@@ -196,7 +221,6 @@ public class FormRecord extends AppCompatActivity {
         }
     }
 
-
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -210,6 +234,25 @@ public class FormRecord extends AppCompatActivity {
 
             }
         }
+    }
+
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        //This is the directory in which the file will be created. This is the default location of Camera photos
+        File storageDir = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_DCIM), "Camera");
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+        // Save a file: path for using again
+        cameraFilePath = "file://" + image.getAbsolutePath();
+        imagePath = cameraFilePath;
+        Log.e("", "createImageFile: " + cameraFilePath);
+        return image;
     }
 
     public class ImageProcessClass {
@@ -260,24 +303,6 @@ public class FormRecord extends AppCompatActivity {
             return stringBuilder.toString();
         }
 
-    }
-
-    private File createImageFile() throws IOException {
-        // Create an image file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        //This is the directory in which the file will be created. This is the default location of Camera photos
-        File storageDir = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_DCIM), "Camera");
-        File image = File.createTempFile(
-                imageFileName,  /* prefix */
-                ".jpg",         /* suffix */
-                storageDir      /* directory */
-        );
-        // Save a file: path for using again
-        cameraFilePath = "file://" + image.getAbsolutePath();
-        Log.e("", "createImageFile: " + cameraFilePath);
-        return image;
     }
 
 }
