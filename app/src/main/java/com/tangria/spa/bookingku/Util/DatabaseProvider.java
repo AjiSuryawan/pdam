@@ -2,11 +2,13 @@ package com.tangria.spa.bookingku.Util;
 
 import android.util.Log;
 
+import com.tangria.spa.bookingku.Activity.FormRecord;
 import com.tangria.spa.bookingku.Model.FormRecordModel;
 
 import java.util.UUID;
 
 import io.realm.Realm;
+import io.realm.RealmResults;
 
 public class DatabaseProvider {
     private static DatabaseProvider instance;
@@ -35,6 +37,12 @@ public class DatabaseProvider {
             Log.e("", "onError: " + error.getLocalizedMessage());
             realm.close();
         } );
+    }
+
+    public FormRecordModel getRecordByMeteran(String meteran){
+        return realm.where(FormRecordModel.class)
+                .equalTo("meteran", meteran)
+                .findFirst();
     }
 
     public void close() {

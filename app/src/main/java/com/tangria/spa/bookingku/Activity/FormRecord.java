@@ -117,7 +117,7 @@ public class FormRecord extends AppCompatActivity {
                         .setNegativeButton("Tidak", null)
                         .setPositiveButton("Ya", (arg0, arg1) -> {
                             if (!imageName.getText().toString().isEmpty() && !imagePath.isEmpty()) {
-                                db.insertRecord(imageName.getText().toString(), "imagepath...");
+                                db.insertRecord(imageName.getText().toString(), imagePath);
                             }
                             finish();
                         }).create().show();
