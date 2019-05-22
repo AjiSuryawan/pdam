@@ -98,6 +98,7 @@ public class Massage extends AppCompatActivity {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                arrayList = new ArrayList<>();
                 load_data();
             }
         });

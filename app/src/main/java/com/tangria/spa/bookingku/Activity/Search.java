@@ -34,7 +34,7 @@ public class Search extends AppCompatActivity {
         updateBtn.setOnClickListener(v -> {
             FormRecordModel formRecordModel = db.getRecordByName(etMeteran.getText().toString());
             Log.e("", "onCreate: " + formRecordModel.getImagePath() );
-            ivImage.setImageURI(Uri.parse(formRecordModel.getImagePath()));
+           // ivImage.setImageURI(Uri.parse(formRecordModel.getImagePath()));
 //                finish();
         });
     }
