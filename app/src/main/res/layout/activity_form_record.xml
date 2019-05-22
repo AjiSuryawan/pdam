@@ -62,6 +62,16 @@
                 android:background="@color/colorPrimary"
                 android:id="@+id/buttonUpload"/>
 
+            <TextView
+                    android:visibility="gone"
+                    android:id="@+id/tvinfo"
+                    android:layout_gravity="center"
+                    android:textColor="@color/blue"
+                    android:textSize="30sp"
+                    android:text="Data sudah terisi"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"/>
+
         </LinearLayout>
     </ScrollView>
 

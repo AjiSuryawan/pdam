@@ -1,6 +1,7 @@
 package com.tangria.spa.bookingku.Activity;
 
 import android.Manifest;
+import android.app.ActionBar;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -19,10 +20,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.Toast;
+import android.widget.*;
 
 import com.tangria.spa.bookingku.BuildConfig;
 import com.tangria.spa.bookingku.Model.FormRecordModel;
@@ -106,7 +104,22 @@ public class FormRecord extends AppCompatActivity {
         FormRecordModel formRecord = db.getRecordByName(name);
         if(formRecord != null) {
             imageName.setText(formRecord.getMeteran());
-            ShowSelectedImage.setImageURI(Uri.parse(formRecord.getImagePath()));
+            Bitmap bitmap = null;
+            try {
+                bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), Uri.parse("file://" +formRecord.getImagePath()));
+
+                //ShowSelectedImage.setImageURI(Uri.parse(formRecord.getImagePath()));
+                ShowSelectedImage.setImageBitmap(bitmap);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            imageName.setEnabled(false);
+            UploadImageOnServerButton.setEnabled(false);
+            GetImageFromGalleryButton.setEnabled(false);
+            TextView textView=(TextView)findViewById(R.id.tvinfo);
+            textView.setVisibility(View.VISIBLE);
+
         }
         GetImageFromGalleryButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -117,17 +130,23 @@ public class FormRecord extends AppCompatActivity {
         UploadImageOnServerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                GetImageNameFromEditText = "makan";
-                new AlertDialog.Builder(FormRecord.this)
-                        .setTitle("Save data")
-                        .setMessage("Apakah anda yakin ingin save data ?")
-                        .setNegativeButton("Tidak", null)
-                        .setPositiveButton("Ya", (arg0, arg1) -> {
-                            if (!imageName.getText().toString().isEmpty() && !imagePath.isEmpty()) {
-                                db.insertRecord(name, imageName.getText().toString(), imagePath);
-                            }
-                            finish();
-                        }).create().show();
+
+                if (imageName.getText().toString().isEmpty() || imagePath == null ){
+                    Toast.makeText(getApplicationContext(),"harap isi semua data", Toast.LENGTH_LONG).show();
+                }else {
+
+                    new AlertDialog.Builder(FormRecord.this)
+                            .setTitle("Save data")
+                            .setMessage("Apakah anda yakin ingin save data ?")
+                            .setNegativeButton("Tidak", null)
+                            .setPositiveButton("Ya", (arg0, arg1) -> {
+                                if (!imageName.getText().toString().isEmpty() && !imagePath.isEmpty()) {
+                                    db.insertRecord(name, imageName.getText().toString(), imagePath);
+                                }
+                                finish();
+                            }).create().show();
+
+                }
 
             }
         });
